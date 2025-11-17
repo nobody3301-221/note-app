@@ -1,0 +1,153 @@
+/*=====================================
+  グローバル/スパイモードの基本設定
+=======================================*/
+body.spy-mode {
+    background-color: #1a1a1a; /* 暗い背景 */
+    color: #00ff00; /* 蛍光グリーン */
+    font-family: 'Courier New', monospace;
+    padding: 20px;
+    margin: 0;
+}
+
+header {
+    border-bottom: 2px solid #00ff00;
+    padding-bottom: 10px;
+    margin-bottom: 30px;
+    text-align: center;
+}
+
+.spy-container {
+    max-width: 800px;
+    margin: 0 auto;
+}
+
+.module {
+    background-color: #2a2a2a;
+    border: 1px solid #00ff00;
+    padding: 20px;
+    margin-bottom: 40px;
+    box-shadow: 0 0 10px rgba(0, 255, 0, 0.5); /* グローエフェクト */
+}
+
+h2 {
+    color: #00ff00;
+    text-decoration: underline;
+}
+
+input[type="text"], textarea, button {
+    display: block;
+    width: 95%;
+    padding: 10px;
+    margin-bottom: 10px;
+    background-color: #333;
+    border: 1px solid #00ff00;
+    color: #00ff00;
+    font-family: inherit;
+}
+
+button {
+    cursor: pointer;
+    background-color: #006600;
+    transition: background-color 0.3s;
+}
+
+button:hover {
+    background-color: #00cc00;
+    color: #1a1a1a;
+}
+
+ul {
+    list-style: none;
+    padding: 0;
+}
+
+ul li {
+    padding: 8px;
+    border-bottom: 1px dotted #00ff00;
+}
+
+/*=====================================
+  カモフラージュ（電卓）モード
+=======================================*/
+body.camouflage-mode {
+    background-color: #f0f0f0;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 100vh;
+    margin: 0;
+}
+
+.calculator {
+    width: 300px;
+    background-color: #333;
+    border-radius: 10px;
+    padding: 20px;
+    box-shadow: 0 0 20px rgba(0, 0, 0, 0.5);
+}
+
+#display {
+    width: 90%;
+    height: 50px;
+    margin-bottom: 20px;
+    background-color: #444;
+    color: #fff;
+    font-size: 2em;
+    text-align: right;
+    border: none;
+    padding: 5px 10px;
+}
+
+.buttons {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 10px;
+}
+
+.calculator button {
+    padding: 15px;
+    font-size: 1.2em;
+    border: none;
+    border-radius: 5px;
+    background-color: #555;
+    color: #fff;
+}
+
+.calculator button:hover {
+    background-color: #777;
+}
+
+.calculator button.equal {
+    background-color: #ff9500;
+}
+.calculator button.clear {
+    background-color: #d9534f;
+}
+
+/*=====================================
+  認証演出（トランスフォーメーション）
+=======================================*/
+body.protocol-initiated {
+    background-color: #0a0a0a; 
+    animation: flash-red 0.1s 5 alternate; /* 警告フラッシュ */
+}
+
+@keyframes flash-red {
+    from { box-shadow: 0 0 10px rgba(255, 0, 0, 0.5); }
+    to { box-shadow: 0 0 20px rgba(255, 0, 0, 1); }
+}
+
+body.protocol-initiated #display {
+    color: #ff0000;
+    text-align: center;
+    font-size: 1.5em;
+    animation: glitch 0.1s infinite alternate; /* グリッチエフェクト */
+}
+
+@keyframes glitch {
+    0% { transform: translate(1px, 1px); }
+    25% { transform: translate(-1px, -1px); }
+    50% { transform: translate(1px, -1px); }
+    75% { transform: translate(-1px, 1px); }
+    100% { transform: translate(0, 0); }
+}
