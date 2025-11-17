@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CONFIDENTIAL | Shadow Note System</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body class="spy-mode">
+    <header>
+        <h1>[ CONFIDENTIAL ] SHADOW NOTE SYSTEM</h1>
+        <p>IDENTITY CONFIRMED. WELCOME, AGENT.</p>
+    </header>
+    
+    <div class="spy-container">
+        <section class="module">
+            <h2>🕶️ 1. SECRET CACHE & GEAR</h2>
+            <form id="gear-form">
+                <input type="text" id="gear-name" placeholder="アイテム名" required>
+                <input type="text" id="gear-hint" placeholder="隠し場所のヒント（例：書斎の本棚）" required>
+                <button type="submit">ギアを登録</button>
+            </form>
+            <h3>--- 登録済みアイテム ---</h3>
+            <ul id="gear-list">
+                </ul>
+            <button onclick="loadCurrentLocation()" id="location-button">📍 現在地を取得</button>
+            <p id="location-status"></p>
+        </section>
+        
+        <section class="module">
+            <h2>👤 2. OPERATIVE FILES</h2>
+            <form id="person-form">
+                <input type="text" id="person-name" placeholder="ターゲット/協力者名" required>
+                <input type="text" id="person-relation" placeholder="関係性（例：情報提供者）">
+                <textarea id="person-note" placeholder="極秘メモ"></textarea>
+                <button type="submit">人物ファイルを登録</button>
+            </form>
+            <h3>--- 登録済み人物 ---</h3>
+            <ul id="person-list">
+                </ul>
+        </section>
+    </div>
+    
+    <script src="script.js"></script>
+</body>
+</html>
