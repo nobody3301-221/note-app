@@ -34,7 +34,7 @@ h2 {
     text-decoration: underline;
 }
 
-input[type="text"], textarea, select, button {
+input[type="text"], textarea, select, button, input[type="number"] {
     display: block;
     width: 95%;
     padding: 10px;
@@ -43,7 +43,7 @@ input[type="text"], textarea, select, button {
     border: 1px solid #00ff00;
     color: #00ff00;
     font-family: inherit;
-    box-sizing: border-box; /* パディングとボーダーを幅に含める */
+    box-sizing: border-box; 
 }
 
 button {
@@ -66,6 +66,43 @@ ul li {
     padding: 8px;
     border-bottom: 1px dotted #00ff00;
 }
+
+ul li a {
+    color: inherit;
+    text-decoration: none;
+}
+ul li a:hover {
+    color: #ff9900;
+}
+
+/* --- 指令機能のスタイル --- */
+.mission-module h2 {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+#mission-viewer pre {
+    white-space: pre-wrap;
+    word-wrap: break-word;
+    border: none;
+    padding: 0;
+    color: #ffffff; /* 指令内容は白で見やすく */
+}
+
+/* === 自爆時のグリッチ演出 === */
+.self-destruct-glitch {
+    animation: critical-glitch 0.05s infinite alternate;
+    border-color: red !important;
+    background-color: #3f0000;
+}
+
+@keyframes critical-glitch {
+    0% { transform: skewX(0.5deg); opacity: 0.9; }
+    50% { transform: skewX(-0.5deg); opacity: 1; }
+    100% { transform: skewX(0deg); opacity: 0.95; }
+}
+
 
 /*=====================================
   カモフラージュ（電卓）モード
@@ -103,8 +140,8 @@ body.camouflage-mode {
 
 .buttons {
     display: grid;
-    grid-template-columns: repeat(4, 1fr); /* 4列のグリッドを定義 */
-    gap: 10px; /* ボタン間の隙間 */
+    grid-template-columns: repeat(4, 1fr); 
+    gap: 10px; 
 }
 
 .calculator button {
@@ -136,7 +173,7 @@ body.camouflage-mode {
 =======================================*/
 body.protocol-initiated {
     background-color: #0a0a0a; 
-    animation: flash-red 0.1s 5 alternate; /* 警告フラッシュ */
+    animation: flash-red 0.1s 5 alternate; 
 }
 
 @keyframes flash-red {
@@ -148,7 +185,7 @@ body.protocol-initiated #display {
     color: #ff0000;
     text-align: center;
     font-size: 1.5em;
-    animation: glitch 0.1s infinite alternate; /* グリッチエフェクト */
+    animation: glitch 0.1s infinite alternate; 
 }
 
 @keyframes glitch {
@@ -163,7 +200,7 @@ body.protocol-initiated #display {
   機能 1: 偽のエラー画面演出
 =======================================*/
 body.error-mode {
-    background-color: #000066; /* Windowsブルースクリーン風の青 */
+    background-color: #000066; 
     color: #ffffff;
     font-family: Arial, sans-serif;
     animation: none; 
@@ -188,5 +225,5 @@ body.error-mode #display {
     font-size: 1.2em;
     text-align: left;
     border: none;
-    cursor: pointer; /* タップ/クリック可能であることを示す */
+    cursor: pointer; 
 }
