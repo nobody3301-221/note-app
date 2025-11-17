@@ -18,12 +18,17 @@
             <form id="gear-form">
                 <input type="text" id="gear-name" placeholder="アイテム名" required>
                 <input type="text" id="gear-hint" placeholder="隠し場所のヒント（例：書斎の本棚）" required>
+                <select id="gear-level">
+                    <option value="CONFIDENTIAL">CONFIDENTIAL</option>
+                    <option value="SECRET">SECRET</option>
+                    <option value="TOP_SECRET">TOP SECRET</option>
+                </select>
                 <button type="submit">ギアを登録</button>
             </form>
             <h3>--- 登録済みアイテム ---</h3>
             <ul id="gear-list">
                 </ul>
-            <button onclick="loadCurrentLocation()" id="location-button">📍 現在地を取得</button>
+            <button onclick="loadCurrentLocation()" id="location-button">📍 現在地を取得（環境チェック演出あり）</button>
             <p id="location-status"></p>
         </section>
         
@@ -33,6 +38,11 @@
                 <input type="text" id="person-name" placeholder="ターゲット/協力者名" required>
                 <input type="text" id="person-relation" placeholder="関係性（例：情報提供者）">
                 <textarea id="person-note" placeholder="極秘メモ"></textarea>
+                <select id="person-level">
+                    <option value="CONFIDENTIAL">CONFIDENTIAL</option>
+                    <option value="SECRET">SECRET</option>
+                    <option value="TOP_SECRET">TOP SECRET</option>
+                </select>
                 <button type="submit">人物ファイルを登録</button>
             </form>
             <h3>--- 登録済み人物 ---</h3>
