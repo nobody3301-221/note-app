@@ -5,7 +5,9 @@ const display = document.getElementById('display');
 const SECRET_CODE = '777*0.07=';
 const GEAR_KEY = 'shadow_note_gear';
 const PERSON_KEY = 'shadow_note_person';
-const FAKE_PASSWORD = '1234'; // フェイクパスワード
+const OPERATION_DROP_KEY = 'shadow_note_missions'; // 新しい指令キー
+const FAKE_PASSWORD = '1234'; 
+let selfDestructTimer = null; // タイマーIDを保持
 
 //=====================================
 // カモフラージュ（電卓）ロジック
@@ -15,12 +17,10 @@ if (display) {
     // === 機能 4: トラップ機能（緊急終了） ===
     function killswitch() {
         if (confirm("全てのローカルデータとセッション履歴を即座に破棄し、システムを終了しますか？")) {
-            localStorage.clear(); // 全データ破棄
-            window.close(); // ブラウザタブを閉じる (多くのブラウザでユーザー操作なしには動作しないが、試みる)
-            window.location.href = 'about:blank'; // ブランクページへリダイレクト
+            localStorage.clear(); 
+            window.location.href = 'about:blank';
         }
     }
-    // 隠しコマンド実行時にパスワード入力画面の代わりにこの関数を呼び出す設定も可能
 
     function appendToDisplay(value) {
         if (display.value === '0' || display.value === 'Error') {
@@ -33,22 +33,18 @@ if (display) {
     function calculate() {
         const fullInput = display.value + '=';
         
-        // 隠しコマンドをチェック
         if (fullInput === SECRET_CODE) {
             // === 機能 1: 二重カモフラージュ ===
-            // 認証の前に、偽のエラー画面を呼び出す
             displayFakeErrorScreen();
             return;
         }
 
-        // === 機能 4: トラップ機能（トラップコード） ===
         if (display.value === FAKE_PASSWORD) {
             alert('認証に失敗しました。電卓を再起動します。');
             clearDisplay();
             return;
         }
         
-        // 通常の計算ロジック
         try {
             display.value = eval(display.value.replace(/×/g, '*').replace(/÷/g, '/'));
         } catch (e) {
@@ -63,24 +59,18 @@ if (display) {
     // === 機能 1: 偽のエラー画面表示 ===
     function displayFakeErrorScreen() {
         document.body.classList.add('error-mode');
-        // 全ボタンを非表示
         document.querySelector('.buttons').style.display = 'none'; 
         display.value = 'SYSTEM ERROR 0x80070002. UPDATE REQUIRED. TAP ERROR CODE.';
-        
-        // エラーコードをタップ（クリック）すると、本物の認証プロトコルを開始
         display.onclick = initiateProtocol;
     }
 
     function initiateProtocol() {
-        // エラー画面クリック後の処理を元に戻す
         display.onclick = null; 
-        
         document.body.classList.remove('error-mode');
         document.body.classList.add('protocol-initiated');
-
         display.value = 'ACCESS PROTOCOL INITIATED...';
+        document.querySelector('.calculator').style.backgroundColor = '#0a0a0a'; 
 
-        // 3秒後にスパイページへ遷移
         setTimeout(() => {
             window.location.href = 'spy.html';
         }, 3000);
@@ -90,33 +80,31 @@ if (display) {
     window.appendToDisplay = appendToDisplay;
     window.calculate = calculate;
     window.clearDisplay = clearDisplay;
-    window.killswitch = killswitch; // 緊急終了ボタンを呼び出せるように公開
+    window.killswitch = killswitch; 
 }
 
 
 //=====================================
 // スパイモード（localStorage）ロジック
-// (機能 9, 19 に対応)
 //=====================================
 if (document.body.classList.contains('spy-mode')) {
     
     document.addEventListener('DOMContentLoaded', () => {
         loadData();
 
-        // ギア登録フォームの処理
+        // ギア/人物/指令フォームの処理
         const gearForm = document.getElementById('gear-form');
         if (gearForm) {
             gearForm.addEventListener('submit', (e) => {
                 e.preventDefault();
                 const name = document.getElementById('gear-name').value;
                 const hint = document.getElementById('gear-hint').value;
-                const level = document.getElementById('gear-level').value; // 機能 9: 機密レベル取得
+                const level = document.getElementById('gear-level').value; 
                 saveGear(name, hint, level);
                 gearForm.reset();
             });
         }
 
-        // 人物登録フォームの処理（省略：ギア登録と類似）
         const personForm = document.getElementById('person-form');
         if (personForm) {
             personForm.addEventListener('submit', (e) => {
@@ -124,22 +112,135 @@ if (document.body.classList.contains('spy-mode')) {
                 const name = document.getElementById('person-name').value;
                 const relation = document.getElementById('person-relation').value;
                 const note = document.getElementById('person-note').value;
-                const level = document.getElementById('person-level').value; // 機能 9: 機密レベル取得
+                const level = document.getElementById('person-level').value; 
                 savePerson(name, relation, note, level);
                 personForm.reset();
+            });
+        }
+        
+        // --- 指令フォームの処理 ---
+        const missionForm = document.getElementById('mission-form');
+        if (missionForm) {
+            missionForm.addEventListener('submit', (e) => {
+                e.preventDefault();
+                const title = document.getElementById('mission-title').value;
+                const content = document.getElementById('mission-content').value;
+                const ttl = parseInt(document.getElementById('mission-ttl').value);
+                saveMission(title, content, ttl);
+                missionForm.reset();
             });
         }
     });
 
     // === 機能 19: ブラウザ履歴のクリーニング警告 ===
-    // ログアウトまたはタブを閉じようとしたときに警告
     window.addEventListener('beforeunload', function (e) {
         const message = '機密セッションがアクティブです。履歴とキャッシュのクリアを忘れないでください。';
         e.returnValue = message; 
         return message; 
     });
+    
+    // --- 指令機能のロジック ---
+    
+    function saveMission(title, content, ttl) {
+        const missionList = JSON.parse(localStorage.getItem(OPERATION_DROP_KEY) || '[]');
+        const id = Date.now();
+        missionList.push({ id, title, content, ttl, timestamp: new Date().toLocaleString() });
+        localStorage.setItem(OPERATION_DROP_KEY, JSON.stringify(missionList));
+        loadMission();
+    }
+    
+    function loadMission() {
+        const missionList = JSON.parse(localStorage.getItem(OPERATION_DROP_KEY) || '[]');
+        const listElement = document.getElementById('mission-list');
+        if (!listElement) return;
 
-    // === 機能 9: 機密レベル付きでギアを保存 ===
+        listElement.innerHTML = ''; 
+        missionList.forEach(mission => {
+            const item = document.createElement('li');
+            item.innerHTML = `<a href="#" onclick="startSelfDestruct(${mission.id}, ${mission.ttl}, '${mission.title}', '${btoa(mission.content)}'); return false;">[ACCESS] ${mission.title} (${mission.timestamp})</a>`;
+            listElement.appendChild(item);
+        });
+    }
+    
+    function deleteMission(id) {
+        let missionList = JSON.parse(localStorage.getItem(OPERATION_DROP_KEY) || '[]');
+        missionList = missionList.filter(mission => mission.id !== id);
+        localStorage.setItem(OPERATION_DROP_KEY, JSON.stringify(missionList));
+        loadMission();
+    }
+    
+    function startSelfDestruct(id, ttl, title, encodedContent) {
+        if (selfDestructTimer) {
+            alert('他の指令が既にアクティブです。');
+            return;
+        }
+        if (!confirm(`機密指令 ${title} を開始します。自爆タイマー: ${ttl}秒。よろしいですか？`)) {
+            return;
+        }
+
+        const missionListElement = document.getElementById('mission-list');
+        const viewer = document.getElementById('mission-viewer');
+        const timerDisplay = document.getElementById('mission-timer');
+        const content = atob(encodedContent); // Base64デコード
+
+        // 指令表示エリアの準備
+        missionListElement.style.display = 'none'; // リストを隠す
+        viewer.style.display = 'block';
+        document.getElementById('viewer-title').textContent = title;
+        document.getElementById('viewer-content').textContent = content;
+        
+        // タイマー開始
+        let timeLeft = ttl;
+        timerDisplay.textContent = `!!! ACTIVATED: ${timeLeft} SECONDS !!!`;
+        
+        selfDestructTimer = setInterval(() => {
+            timeLeft--;
+            if (timeLeft <= 0) {
+                clearInterval(selfDestructTimer);
+                initiateSelfDestructSequence(id);
+                return;
+            }
+            
+            // 警告演出
+            if (timeLeft <= 5) {
+                 timerDisplay.style.color = 'yellow';
+                 viewer.style.boxShadow = `0 0 10px red`;
+            }
+
+            timerDisplay.textContent = `!!! ACTIVATED: ${timeLeft} SECONDS !!!`;
+        }, 1000);
+    }
+    
+    function initiateSelfDestructSequence(id) {
+        const viewer = document.getElementById('mission-viewer');
+        const timerDisplay = document.getElementById('mission-timer');
+        const missionListElement = document.getElementById('mission-list');
+
+        // 自爆演出
+        viewer.style.display = 'block';
+        viewer.classList.add('self-destruct-glitch');
+        timerDisplay.textContent = '!!! SELF-DESTRUCT INITIATED !!!';
+        
+        setTimeout(() => {
+            // データ削除
+            deleteMission(id);
+            selfDestructTimer = null;
+            
+            // UIリセット
+            viewer.style.display = 'none';
+            viewer.classList.remove('self-destruct-glitch');
+            timerDisplay.textContent = '';
+            viewer.style.boxShadow = 'none';
+            missionListElement.style.display = 'block';
+            
+            alert('指令ファイルは消滅しました。オペレーション完了。');
+        }, 1500);
+    }
+    
+    window.startSelfDestruct = startSelfDestruct; // HTMLから呼び出せるようにグローバル公開
+    
+    // --- 既存のギア/人物ロジック（変更なし） ---
+
     function saveGear(name, hint, level, lat = 'N/A', lon = 'N/A') {
         const gearList = JSON.parse(localStorage.getItem(GEAR_KEY) || '[]');
         gearList.push({ name, hint, level, lat, lon, timestamp: new Date().toLocaleString() });
@@ -147,7 +248,6 @@ if (document.body.classList.contains('spy-mode')) {
         loadGear();
     }
 
-    // === 機能 9: 機密レベル付きで人物を保存 ===
     function savePerson(name, relation, note, level) {
         const personList = JSON.parse(localStorage.getItem(PERSON_KEY) || '[]');
         personList.push({ name, relation, note, level, timestamp: new Date().toLocaleString() });
@@ -155,7 +255,6 @@ if (document.body.classList.contains('spy-mode')) {
         loadPerson();
     }
 
-    // ギアのデータを読み込み表示
     function loadGear() {
         const gearList = JSON.parse(localStorage.getItem(GEAR_KEY) || '[]');
         const listElement = document.getElementById('gear-list');
@@ -164,13 +263,12 @@ if (document.body.classList.contains('spy-mode')) {
         listElement.innerHTML = ''; 
         gearList.forEach(gear => {
             const item = document.createElement('li');
-            const color = getLevelColor(gear.level); // 機能 9: 色取得
+            const color = getLevelColor(gear.level); 
             item.innerHTML = `<span style="color:${color};">[${gear.level}]</span> **${gear.name}** (${gear.timestamp})<br> ヒント: ${gear.hint} | GPS: ${gear.lat}, ${gear.lon}`;
             listElement.appendChild(item);
         });
     }
 
-    // 人物データを読み込み表示
     function loadPerson() {
         const personList = JSON.parse(localStorage.getItem(PERSON_KEY) || '[]');
         const listElement = document.getElementById('person-list');
@@ -179,29 +277,26 @@ if (document.body.classList.contains('spy-mode')) {
         listElement.innerHTML = ''; 
         personList.forEach(person => {
             const item = document.createElement('li');
-            const color = getLevelColor(person.level); // 機能 9: 色取得
+            const color = getLevelColor(person.level);
             item.innerHTML = `<span style="color:${color};">[${person.level}]</span> **${person.name}** - ${person.relation} (${person.timestamp})<br> <span style="color:#ff0000;">極秘メモ:</span> ${person.note}`;
             listElement.appendChild(item);
         });
     }
 
-    // === 機能 9: 機密レベルに応じた色の決定 ===
     function getLevelColor(level) {
         switch (level) {
-            case 'TOP_SECRET': return '#ff0000'; // 赤
-            case 'SECRET': return '#ff9900';   // オレンジ
-            case 'CONFIDENTIAL': return '#00ff00'; // 緑
+            case 'TOP_SECRET': return '#ff0000'; 
+            case 'SECRET': return '#ff9900';   
+            case 'CONFIDENTIAL': return '#00ff00'; 
             default: return '#00ff00';
         }
     }
     
-    // 現在地取得（GPS連携）
+    // --- 機能 5: 環境要因チェック演出 ---
     function loadCurrentLocation() {
         const status = document.getElementById('location-status');
         if (!status) return;
         
-        // === 機能 5: 環境要因チェック演出 ===
-        // ダミーの環境チェック演出
         status.innerHTML = 'ANALYZING AMBIENT NOISE...';
         setTimeout(() => {
             status.innerHTML = 'LIGHT EXPOSURE: LOW. ACCESS GRANTED.';
@@ -230,6 +325,7 @@ if (document.body.classList.contains('spy-mode')) {
     function loadData() {
         loadGear();
         loadPerson();
+        loadMission();
     }
     
     window.loadCurrentLocation = loadCurrentLocation;
