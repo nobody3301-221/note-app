@@ -13,6 +13,31 @@
     </header>
     
     <div class="spy-container">
+        
+        <section class="module mission-module">
+            <h2>💥 3. OPERATION DROP (指令) <span id="mission-timer" style="color:red;"></span></h2>
+            
+            <details>
+                <summary style="cursor: pointer; color: #ff9900;">+ 新しい指令を作成</summary>
+                <form id="mission-form" style="padding-top: 10px;">
+                    <input type="text" id="mission-title" placeholder="指令コードネーム (例: Operation Raven)" required>
+                    <textarea id="mission-content" placeholder="指令の機密内容を入力"></textarea>
+                    <input type="number" id="mission-ttl" value="30" min="10" max="300">
+                    <label for="mission-ttl" style="display:inline-block; margin-bottom: 10px;">自爆タイマー (秒)</label>
+                    <button type="submit">指令ファイルを登録</button>
+                </form>
+            </details>
+
+            <h3>--- アクティブ・ドロップ ---</h3>
+            <ul id="mission-list">
+                </ul>
+
+            <div id="mission-viewer" style="display:none; margin-top: 20px; padding: 15px; border: 2px dashed red;">
+                <h4>MISSION: <span id="viewer-title"></span></h4>
+                <pre id="viewer-content"></pre>
+            </div>
+        </section>
+        
         <section class="module">
             <h2>🕶️ 1. SECRET CACHE & GEAR</h2>
             <form id="gear-form">
